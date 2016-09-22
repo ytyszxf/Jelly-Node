@@ -1,6 +1,7 @@
 # Node design
 ## Table of Content
   - Application Inline Scripting
+  - Node setting and connection mechanism
   - Node Template View Schema
   - Node Types
     - Rule Node
