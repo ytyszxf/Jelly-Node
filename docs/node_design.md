@@ -35,46 +35,104 @@
   `Doc` is a model-wide JSON object. It is used to access `View Model Instance`'s data. It can be accessed by calling `${doc}`.
 
   `Async` is a method-wide JSON object. It is used to processing async callback data. It can be accessed by calling `${response}`.
+
+## Node Schema
+
+```typescript
+class KiiNode{
+  static labelName: String, // name displayed on node before instantiated
+  static description: String, // name description
+  static accepts: Array<class>,  // acceptable nodes
+  static accepted: Array<class>, // nodes that accepts this node 
+  static acceptableProperties: Array<class>, // acceptable properties
   
+  instanceName: String, // name displayed on node after instantiated
+  model: Object, // node data model
+  viewSchema: IViewSchema, // node view model
+  propertyFlow: Array<{
+    "node": KiiPropertyNode,
+    "validators": Array<InputFlowValidator>
+  }>,
+  inputFlows: Array<{
+    "node": KiiNode,
+    "inputHandler": IInputHandler,
+    "validators": Array<InputFlowValidator>
+  }>,
+  outputFlow: Array<KiiNode>
+}
+
+class KiiPropertyNode{
+  static labelName: String,
+  static accepted: Array<KiiNode>,
+  static viewSchema: ViewSchema,
+  
+  instanceName: String,
+  description: String,
+  model: Object,
+  propertyFlow: Array<{
+    "node": KiiPropertyNode,
+    "validators": Array<InputFlowValidator>
+  }>,
+  outputFlow: Array<KiiNode>
+}
+
+class InputFlowValidator{
+  errorMessage: String,
+  validate: (inputFlow: Object, node: KiiNode)=> boolean,
+  $error: "INPUT" | "CONTENT"
+}
+
+```
+
 ## Node Template View Schema
   Every node renders its editing modal with its `View Schema`. The view schema supports inline script to render its view, validate its input. A view model will be instantiated when a node is created(shown on canvas). The first layer of Node View Schema is display fields.
 
   `Template View Schema` defines as:
-  ```javascript
-  {
-    [field name]: {
-      "type": String | number | JSON | boolean, Array
-      "label": String,
-      "maxLength?": number, // max length of input
-      "minLength?": number, // min length of input
-      "editable?": boolean, // if data is editable or not, default true,
-      "placeholder?": String,
-      "$validate?":[{ // validate input
-        "async?": boolean, // default false, run async validate or not
-        "checkWhen?": "change" | "save", // default "change", run validate when changed or on save button click
-        "remote?": { // enabled only when async is true
-          "url": String, // remote url
-          "method?": String, // calling method
-          "headers?": JSON,
-          "body?": String | JSON
+  ```typescript
+  interface IViewSchema {
+    "title": String,
+    "buttons": [
+      {
+        "buttonText": String,
+        "role?": "cancel" | "submit",
+        "callback?": 'cancel' | 'submit' | Function
+      }
+    ],
+    "viewTemplate?": String,
+    "formControls?": [
+      {
+        "viewTemplate?": String,
+        "label": String,
+        "maxLength?": number, // max length of input
+        "minLength?": number, // min length of input
+        "editable?": boolean, // if data is editable or not, default true,
+        "placeholder?": String,
+        "$validate?":[{ // validate input
+          "async?": boolean, // default false, run async validate or not
+          "checkWhen?": "change" | "save", // default "change", run validate when changed or on save button click
+          "remote?": { // enabled only when async is true
+            "url": String, // remote url
+            "method?": String, // calling method
+            "headers?": JSON,
+            "body?": String | JSON
+          },
+          "validator": [validateFuncs] | $Script,
+          "msg?": String
+        }],
+        "$parser?": { // parse modal data to view data
+          "async?": boolean, // default false, run async parser or not
+          "remote?": { // enabled only when async is true
+            "url": String, // remote url
+            "method?": String, // calling method
+            "headers?": JSON, 
+            "body?": String | JSON
+          },
+          "parse?": [parseFuncs] | $Script
         },
-        "validator": [validateFuncs] | $Script,
-        "msg?": String
-      }],
-      "$parser?": { // parse modal data to view data
-        "async?": boolean, // default false, run async parser or not
-        "remote?": { // enabled only when async is true
-          "url": String, // remote url
-          "method?": String, // calling method
-          "headers?": JSON, 
-          "body?": String | JSON
-        },
-        "parse?": [parseFuncs] | $Script
-      },
-      "$formatter?": [formatterFuncs] | $Script // formate view data to modal data
-    }
+        "$formatter?": [formatterFuncs] | $Script // formate view data to modal data
+      }
+    ]
   }
-    
   ```
   
 ## Node Types
