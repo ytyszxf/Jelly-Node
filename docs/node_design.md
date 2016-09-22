@@ -168,7 +168,7 @@
 ### *Location Node*
   > Select location
 
-  *Accept:* 
+  *Accept:* ``,``
 
   *Output:*
 ### *Schedule Node*
