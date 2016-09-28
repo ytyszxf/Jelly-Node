@@ -5,7 +5,7 @@
 const helpers = require('./helpers');
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
 const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
-
+const webpack = require('webpack');
 /**
  * Webpack Plugins
  */
@@ -111,9 +111,11 @@ module.exports = webpackMerge(commonConfig, {
         'NODE_ENV': JSON.stringify(METADATA.ENV),
         'HMR': METADATA.HMR,
       }
+    }),
+    new webpack.ProvidePlugin({
+      'd3': 'd3' 
     })
   ],
-
   /**
    * Static analysis linter for TypeScript advanced options configuration
    * Description: An extensible linter for the TypeScript language.
