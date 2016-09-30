@@ -1,6 +1,6 @@
 import {Injectable, Inject} from '@angular/core';
 import {Http} from '@angular/http';
-import {JNConfig} from '../jn-config';
+import {JNConfig} from '../../jn-config';
 
 @Injectable()
 export class ConfigContextService{

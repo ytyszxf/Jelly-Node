@@ -14,7 +14,7 @@ import '@angular/router';
 // RxJS
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mergeMap';
-
+import 'hammerjs';
 // Angular 2 Material 2
 // TODO(gdi2290): uncomment when material is fixed
 // import '@angular2-material/sidenav';

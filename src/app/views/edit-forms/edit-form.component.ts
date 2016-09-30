@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {ApplicationContextService} from '../../services'
+import {ApplicationContextService} from '../../shared/services'
 
 @Component({
   selector: "jn-editform",
