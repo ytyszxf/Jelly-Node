@@ -1,1 +1,1 @@
-export * from './graphic.component'
+export * from './view.module';

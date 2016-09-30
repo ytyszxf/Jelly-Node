@@ -12,6 +12,7 @@
     - Action Node
     - ML Node
     - API Node
+  - Tech Stack
 
 ## Application Inline Scripting
   Inline Scripting is used in the application for rendering views. To use the inline-scripting,  Basically, the scripting has five types of data source: `Config`, `Application`, `Cache`, `Doc`, `Async`. 
@@ -42,9 +43,9 @@
 class KiiNode{
   static labelName: String, // name displayed on node before instantiated
   static description: String, // name description
-  static accepts: Array<class>,  // acceptable nodes
-  static accepted: Array<class>, // nodes that accepts this node 
-  static acceptableProperties: Array<class>, // acceptable properties
+  static accepts: Array<any>,  // acceptable nodes
+  static accepted: Array<any>, // nodes that accepts this node 
+  static acceptableProperties: Array<any>, // acceptable properties
   
   instanceName: String, // name displayed on node after instantiated
   model: Object, // node data model
@@ -95,18 +96,21 @@ class InputFlowValidator{
       {
         "buttonText": String,
         "role?": "cancel" | "submit",
-        "callback?": 'cancel' | 'submit' | Function
+        "callback?": 'cancel' | 'submit' | Function,
+        "disabled": String
       }
     ],
     "viewTemplate?": String,
     "formControls?": [
       {
-        "viewTemplate?": String,
+        "formTemplate?": String,
         "label": String,
         "maxLength?": number, // max length of input
         "minLength?": number, // min length of input
-        "editable?": boolean, // if data is editable or not, default true,
+        "hidden?": String, // if hidden is true, hide the form control
+        "disabled?": String, // if data is editable or not, default true,
         "placeholder?": String,
+        "model?": String,
         "$validate?":[{ // validate input
           "async?": boolean, // default false, run async validate or not
           "checkWhen?": "change" | "save", // default "change", run validate when changed or on save button click
@@ -135,139 +139,204 @@ class InputFlowValidator{
   }
   ```
   
-## Node Types
-### *Rule Node*
-  > Entrance point of a Rule. Display on canvase initially.
 
-  *Accept:* `Condition Node`, `Property Node`
-
-  *Output:* `API Node`, `Device Node`
-
-  *Edit structure*
-  ```javascript
+  *View Example*
+  ```typescript
   {
-    "ruleName": {
-      "type": String,
-      "label": "Rule Name",
-      "maxLength": 100,
-      "default": 
-      "editable": true,
-      "placeholder": "Input a Rule Name...",
-      "$validate": [{
-        "async": true,
-        "checkWhen": "change",
-        "remote": {
-          "url": "${config.apiUrl}/checkRulename",
-          "method": "post",
-          "headers": {
-            'Authorization': '${application.authToken}'
-          },
-          "body": {
-            "ruleName": "${doc.ruleName.value}"
-          }
-        },
-        "validator": "${response.ok}",
-        "msg": "Rule name existing!"
-      }]
-    },
-    "description": {
-      "label": "Description",
-      "type": String,
-      "display": "textarea"
-      "maxLength": 500,
-      "editable": true
-    },
-    "createAt": {
-      "label": "Created At",
-      "type": String,
-      "editable": false,
-      "$parser": "time"
-    },
-    "updateAt": {
-      "label": "Updated At",
-      "type": String,
-      "editable": false,
-      "$parser": "time"
-    },
-    "createBy": {
-      "label": "Created By",
-      "type": String,
-      "editable": false,
-      "$parser": {
-        "async": true,
-        "remote": {
-          "url": "${config.apiUrl}/users/${doc.createBy.value}",
-          "method": "get",
-          "header": {
-            'Authorization': '${application.authToken}'
-          }
-        },
-        "parse": "${response.userName}"
+    "title": "Resource.Text.EditRuleTitle",
+    "buttons": [
+      {
+        "buttonText": "Resource.Text.controls.ok",
+        "role": "submit",
+        "disabled": "form.$invalid"
+      },
+      {
+        "buttonText": "Resource.Text.controls.cancel",
+        "role": "cancel"
       }
-    },
-    "updateBy": {
-      "label": "Updated By",
-      "type": String,
-      "editable": false,
-      "$parser": {
-        "async": true,
-        "remote": {
-          "url": "${config.apiUrl}/users/${doc.createBy.value}",
-          "method": "get",
-          "header": {
-            'Authorization': '${application.authToken}'
-          }
-        },
-        "parse": "${response.userName}"
-      }  
-    }
+    ],
+    "viewTemplate": "default",
+    "formControls": [
+      {
+        "label": "Resource.Text.RuleName",
+        "formTemplate": "text",
+        "maxLength": 100,
+        "minLength": 5,
+        "model": "ruleName",
+        "placeholder": "Resource.Text.RuleNamePlaceholder",
+        "$validate": [{
+          "async": true,
+          "checkWhen": "change",
+          "remote": {
+            "url": "${config.apiUrl}/checkRulename",
+            "method": "post",
+            "headers": {
+              'Authorization': '${application.authToken}'
+            },
+            "body": {
+              "ruleName": "${doc.ruleName.value}"
+            }
+          },
+          "validator": "${response.ok}",
+          "msg": "Resource.Text.RuleNameExisting!"
+        }]
+      },
+      {
+        "model": "description"
+        "label": "Resource.Text.Description",
+        "formTemplate": "textarea",
+        "maxLength": 500
+      },
+      {
+        "model": "createAt",
+        "label": "Resource.Text.CreateAt",
+        "formTemplate": "label",
+        "$parser": "time"
+      },
+      {
+        "model": "updateAt",
+        "label": "Resource.Text.UpdateAt",
+        "formTemplate": "label",
+        "$parser": "time"
+      },
+      {
+        "model": "createBy",
+        "label": "Resource.Text.CreateBy",
+        "formTemplate": "label",
+        "$parser": {
+          "async": true,
+          "remote": {
+            "url": "${config.apiUrl}/users/${doc.createBy.value}",
+            "method": "get",
+            "header": {
+              'Authorization': '${application.authToken}'
+            }
+          },
+          "parse": "${response.userName}"
+        }
+      }
+    ]
   }
   ```
-### *Location Node*
+## Node Types
+- ### *Rule Node*
+  > Entrance point of a Rule. Display on canvase initially.
+
+  *Accept:* `Condition Node`
+
+  *Properties:* `Schedule Node`
+
+  *Output:* `API Node` / `Device Node`
+
+- ### *Location Node*
   > Select location
 
-  *Accept:* ``,``
+  *Properties Output:* `Device Node`
+  
+- ### *Schedule Node*
+  > Interval Time / Cron Job
 
-  *Output:*
-### *Schedule Node*
-  >
+  *Property Output:* `Rule Node`
 
-  *Accept:* 
+- ### *Conjection Node*
+  > Join conditions
 
-  *Output:*
-### *Conjection Node*
-  >
+  *Accept:* `Conjection Node` / `ML Condition Node` / `Device Condition`
 
-  *Accept:* 
+  *Output:* `Conjection Node` / `Rule Node`
+- ### *Deivce Node*
+  > Pick Device Type
 
-  *Output:*
-### *Deivce Node*
-  >
+  *properties:* `Location Node`
 
-  *Accept:* 
+  *Output:* `Device Property Node`
+- ### *Device Property Node*
+  > Pick Device Property Condition
 
-  *Output:*
-### *Property Node*
-  >
+  *Accept:* `Device Node`
 
-  *Accept:* 
+  *Output:* `Conjection Node`, `Rule Node`
+- ### *Action Node*
+  > Pick Device actions
 
-  *Output:*
-### *Action Node*
-  >
+  *Accept:* `Device Node`
 
-  *Accept:* 
+- ### *ML Node*
+  > Select Machine Learning Model
 
-  *Output:*
-### *ML Node*
-  >
+  *Output:* `ML Condition Node`
 
-  *Accept:* 
+- ### *ML Condition Node*
+  > Pick Machine Learning Conditions
 
-  *Output:*
-### *API Node*
-  >
+  *Output* `Conjection Node`
+- ### *API Node*
+  > API call when rule triggered.
 
-  *Accept:* 
+  *Accept:* `Rule Node`
 
-  *Output:*
+
+## Modules
+### *Views*
+- #### *Graph*
+  - View Render
+    - Path Render
+    - Node Render
+    - View Editor
+    - State Stack
+  - Node Parser
+- #### *Palette*
+  - Template Render
+  - Node Parser
+- #### *Info Panel*
+  - Info Parser
+  - Info Template Render
+- #### *Edit Form*
+  - Build-in Form controls
+  - Build-in Form Templates
+  - Custom Form Template register
+  - Custom Form control register
+  - Template Loader
+  - Node Parser
+  - Node Validator
+    - Async
+    - Sync
+  - Node UI Render
+- #### *Events*
+
+### *Models*
+  - _baseNode
+    - Validator
+    - Parser
+
+### *Locale*
+  - translate
+    - CN
+    - EN
+
+## Browser supports
+  >`IE 10+`, `any other browsers`
+## Tech Stack
+### *Libraries* 
+  - Typescript
+    > ES 6 polyfills.
+  - SCSS
+    > OO CSS Style
+  - Angular 2
+    > MVVM Template framework, Flux
+  - Angular 2 material design
+    > build-in UI components
+  - rxjs
+    > Data communication
+  - immutableJS
+    > Data state maintainer
+  - d3
+    > SVG lib
+
+### *Development*
+  - NPM
+    > Dependency Manager
+  - Webpack
+    > Development building tool
+  - Typings
+    > Javascript Lib descriptor manager

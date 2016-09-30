@@ -48,7 +48,7 @@ export class GraphicComponent implements OnInit{
           .attr('height', 30)
           .attr('fill', 'transparent')
           .attr('stroke', (d) => d.color)
-          .on('mouseover', (e) => {
+          .on('mouseover', function(e){
             console.log(this);
             console.log(e);
           });
