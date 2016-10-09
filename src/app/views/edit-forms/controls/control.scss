@@ -1,0 +1,12 @@
+.jn-form{
+  display: flex;
+  .jn-form-label{
+    width: 120px;
+  }
+  .jn-form-container{
+    flex: 1;
+    .jn-form-control{
+      width: 100%;
+    } 
+  }
+}
