@@ -16,13 +16,13 @@
   - Tech Stack
 
 ## Application Inline Scripting
-  Inline Scripting is used in the application for rendering views. To use the inline-scripting,  Basically, the scripting has five types of data source: `Config`, `Application`, `Cache`, `Doc`, `Async`. 
+  Inline Scripting is used in the application for rendering views. To use the inline-scripting,  Basically, the scripting has five types of data source: `Config`, `Application`, `Cache`, `Doc`, `Async`.
 
   `Config` is a global JSON object which is read from `/node-config.json`. Inline-scripting is able to get its value by calling `${Config}`.
 
   `Application` is a global JSON object which storesrun time data. Data will be cleared after application is destroyed. It can be accessed by calling `${Application}`.
 
-  `Cache` is a session-wide key paire storage. Data will be stored locally until removed by program or expired. Expire time can be specified or set by default (default value is defined in `/config.js`). 
+  `Cache` is a session-wide key paire storage. Data will be stored locally until removed by program or expired. Expire time can be specified or set by default (default value is defined in `/config.js`).
   ```javascript
   // set Cache
   ${Cache.set(key, value, expireTime?)}
@@ -38,6 +38,51 @@
 
   `Async` is a method-wide JSON object. It is used to processing async callback data. It can be accessed by calling `${response}`.
 
+## Node attributes and Connection mechanism
+### Node Attributes
+Unlike NodeRed, which uses nodes to represents a chain (flow) of ordered actions, the result of nodes chain in our design does not have strong order and procedure information, but a clear hierarchical data structure. Therefore, the connection points of a node may have the following meaning:
+
+![Markdown](http://p1.bqimg.com/1949/d12c0f980b51fc69.png)
+
+We may need to consider whether we support a single node to have explicit multiple (different) descriptors and impacts connection points.
+
+ - we don't support it now and in the future?
+ - we don't support it now and may support it in the future?
+ - we will support it in the initial patch?
+
+In order to support business logics of nodes application (in our case: rules engine, reporting creation, maybe others later), a node may generally have the following attributes regardless of UI visibility:
+
+ - **Node Type**: indicating the type of nodes for query and management purpose
+ - **Node Category**: even wider range of node grouping for query and management purpose
+ - **Node ID**: unique ID for each node entity for identification purpose
+ - **Default display Name**: based on node type, indicating what is displayed on the node by default
+ - **Primary**: indicating whether the node is mandatory and not deletable in a nodes application. a nodes chain should only have one primary node, and there should be only one node chain in a view. e.g. a Rule node is primary in rule creation view, and should exists once entering the view.
+ - **DescriptorAccepts**: lists what nodes can be connected to the node as descriptors. this attribute can be used to
+  - dynamically show the available neighbors of a node in the UI.
+  - prevent nodes connections of not-connectable nodes
+ 
+ it is possible that whether a node can be the descriptor of another node can be dynamic. we may also need to consider the situation.
+ - **ImpactAccepts**: lists what nodes can be connected to a node as impacts
+ - **DescriptorConnected**: lists nodes that have been connected to a node as descriptors
+ - **ImpactConnected**: lists nodes that have been connected to a node as impacts
+ - **Position**: for UI purpose only, indicating where the node is on the canvas
+ - **Property**: business setting data of a node
+
+[Please extend the above list if needed.]
+
+### Node Connection Mechanism
+#### Connection validity
+
+In NodeRed, all nodes can be connected to each other with no restriction, and developer will need to debug to see if a flow works as expected. In our case, we do not want users to go through try-and-failure process, but responsively create rules with intuitive UI. In practice, we need to try to eliminate connection errors even before nodes are incorrectly connected. Attempts could be:
+
+ - showing the availability of neighbors of a node when it is selected, in order to avoid wrong related nodes being introduced
+ - preventing two incompatible nodes being connected when the user attempts to connect them
+ - showing the status of connection lines (some node property setting may influence the validity of connection?)
+
+#### Data exchange between nodes
+
+Once two nodes are connected, they should be able to exchange data closely each other to enable some dynamic settings. Also, there may need a message object accessible throughout a node chain to pass global information. This is useful to raise errors/warning and avoid nodes conflicts.
+
 ## Node Schema
 
 ```typescript
@@ -45,9 +90,9 @@ class KiiNode{
   static labelName: String, // name displayed on node before instantiated
   static description: String, // name description
   static accepts: Array<any>,  // acceptable nodes
-  static accepted: Array<any>, // nodes that accepts this node 
+  static accepted: Array<any>, // nodes that accepts this node
   static acceptableProperties: Array<any>, // acceptable properties
-  
+
   instanceName: String, // name displayed on node after instantiated
   model: Object, // node data model
   viewSchema: IViewSchema, // node view model
@@ -67,7 +112,7 @@ class KiiPropertyNode{
   static labelName: String,
   static accepted: Array<KiiNode>,
   static viewSchema: ViewSchema,
-  
+
   instanceName: String,
   description: String,
   model: Object,
@@ -129,7 +174,7 @@ class InputFlowValidator{
           "remote?": { // enabled only when async is true
             "url": String, // remote url
             "method?": String, // calling method
-            "headers?": JSON, 
+            "headers?": JSON,
             "body?": String | JSON
           },
           "parse?": [parseFuncs] | $Script
@@ -139,7 +184,7 @@ class InputFlowValidator{
     ]
   }
   ```
-  
+
 
   *View Example*
   ```typescript
@@ -233,7 +278,7 @@ class InputFlowValidator{
   > Select location
 
   *Properties Output:* `Device Node`
-  
+
 - ### *Schedule Node*
   > Interval Time / Cron Job
 
@@ -317,8 +362,9 @@ class InputFlowValidator{
 
 ## Browser supports
   >`IE 10+`, `any other browsers`
+  
 ## Tech Stack
-### *Libraries* 
+### *Libraries*
   - Typescript
     > ES 6 polyfills.
   - SCSS
