@@ -411,20 +411,20 @@ Node's info modal is defined by its `InfoModel`.
 
 ## Modules
 ### *Views*
-- #### *Graph*
+-  *Graph*
   - View Render
     - Path Render
     - Node Render
     - View Editor
     - State Stack
   - Node Parser
-- #### *Palette*
+-  *Palette*
   - Template Render
   - Node Parser
-- #### *Info Panel*
+-  *Info Panel*
   - Info Parser
   - Info Template Render
-- #### *Edit Form*
+-  *Edit Form*
   - Build-in Form controls
   - Build-in Form Templates
   - Custom Form Template register
@@ -435,7 +435,7 @@ Node's info modal is defined by its `InfoModel`.
     - Async
     - Sync
   - Node UI Render
-- #### *Events*
+-  *Events*
 
 ### *Models*
   - _baseNode
