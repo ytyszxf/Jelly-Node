@@ -1,5 +1,5 @@
 import {Component, Input, Output, ElementRef, Renderer, NgZone, SimpleChange} from '@angular/core';
-import {FormBuilder, Validators, FormGroup, FormControl, FORM_DIRECTIVES, REACTIVE_FORM_DIRECTIVES} from '@angular/forms';
+import {FormBuilder, Validators, FormGroup, FormControl} from '@angular/forms';
 
 const noop = () => {
 };

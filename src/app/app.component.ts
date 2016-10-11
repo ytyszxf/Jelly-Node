@@ -23,6 +23,32 @@ export class AppComponent {
         translate.setTranslation('cn', cn);
         translate.setTranslation('en', en);
         appContext.set('a', '123');
+
+        setTimeout(() => {
+            //this.logParamTypes(this.test, 'appContext');
+        }, 3000);
+        getParams(this.test);
     }
 
+    @logParamTypes
+    private test(appContext: ApplicationContextService) {
+        
+    }
+
+}
+
+// declare property decorator
+function logParamTypes(target: any, key: string) {
+    setTimeout(() => {
+        var types = Reflect.getMetadata("design:paramtypes", target, key);
+        var s = types.map(a => a.name).join();
+        console.log(`${key} param types: ${s}`);
+    }, 3000);
+}  
+
+function getParams(func: Function) {
+    setTimeout(function () {
+        console.log(TranslateService['token']);
+        // console.log(Reflect.getMetadata('parameters', func, 'appContext'));
+    }, 5000);
 }

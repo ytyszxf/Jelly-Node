@@ -10,14 +10,14 @@ export class GraphicComponent implements OnInit{
     }
     
     ngOnInit(){
-      setTimeout(this.start.bind(this), 5000);
+        setTimeout(this.start.bind(this), 5000);
     }
   
     start() {
-      window['d3'] = d3;
-      var margin = {top: 20, right: 120, bottom: 20, left: 120},
-          width = 960 - margin.right - margin.left,
-          height = 500 - margin.top - margin.bottom;
+        window['d3'] = d3;
+        var margin = {top: 20, right: 120, bottom: 20, left: 120},
+            width = 960 - margin.right - margin.left,
+            height = 500 - margin.top - margin.bottom;
 
         var svg = d3.select(this.ele.nativeElement).append("svg")
           .attr("width", width + margin.right + margin.left)
@@ -86,8 +86,6 @@ export class GraphicComponent implements OnInit{
 
             return `M${d.source.x + 120} ${d.source.y + 15} C ${d.source.x + 120 / 2 + scale * node_width} ${d.source.y + 15 + scaleY * node_height} ${d.target.x - scale * node_width} ${d.target.y + 15 - scaleY * node_height} ${d.target.x} ${d.target.y + 15}`;
           });
-          
-
         console.log(data);
     }
     
